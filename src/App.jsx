@@ -50,7 +50,7 @@ const TrumpMascot = ({ isSpinning, hasWon }) => (
     }}
   >
     <img 
-      src="/api/placeholder/128/128" 
+      src="/1 (1)@2x.png" 
       alt="Trump Mascot" 
       className="w-full h-full object-contain"
     />
