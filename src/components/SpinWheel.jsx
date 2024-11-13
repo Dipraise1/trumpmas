@@ -3,11 +3,12 @@ import { useCallback } from "react";
 import { motion, useAnimation } from "framer-motion";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useState } from "react";
 
 function getRandomFloat(min, max) {
-  const randomFloat = (Math.random() * (max - min) + min).toFixed(1);
-  return parseFloat(randomFloat);
+  return parseFloat((Math.random() * (max - min) + min).toFixed(1));
 }
+
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -24,50 +25,53 @@ const rewards = [
 const getRandomReward = () => {
   const rand = Math.random();
   let cumulativeProbability = 0;
-
   for (const reward of rewards) {
     cumulativeProbability += reward.probability;
     if (rand < cumulativeProbability) {
       return reward;
     }
   }
-  return rewards[0]; // Fallback
+  return rewards[0]; // Fallback in case of rounding errors
 };
 
-export default function SpinWheel({
-  selectedReward,
-  setSelectedReward,
-  isSpinning,
-  setIsSpinning,
-  wheelRotation,
-  setWheelRotation,
-  setHasWon,
-}) {
+export default function SpinWheel({ isSpinning, setIsSpinning, setHasWon }) {
+  const [selectedReward, setSelectedReward] = useState(null);
+  const [wheelRotation, setWheelRotation] = useState(0);
+
   const controls = useAnimation();
 
   const spinWheel = useCallback(async () => {
     setHasWon(false);
     setSelectedReward(null);
     if (isSpinning) return;
+
     setIsSpinning(true);
-    setSelectedReward(null);
-    const reward = getRandomReward();
-    const index = rewards.findIndex((r) => r.label === reward.label);
-    const segmentAngle = 360 / rewards.length;
-    const rewardAngle =
-      index * segmentAngle + segmentAngle / getRandomFloat(1.1, 9.9);
+
+    // Randomize spin details
     const cycles = getRandomInt(4, 11);
     const fullRotation = 360 * cycles;
-    const stopRotation = fullRotation + rewardAngle;
+    const stopRotation = fullRotation + getRandomFloat(0, 360);
+
+    // Start the spinning animation
     await controls.start({
       rotate: stopRotation,
       transition: { duration: 5, ease: "easeOut" },
     });
-    setWheelRotation(stopRotation % 360);
-    setSelectedReward(reward);
+
+    // Calculate the stopped angle within 0-360 degrees
+    const finalRotation = stopRotation % 360;
+
+    // Determine which segment the pointer stopped at
+    const segmentAngle = 360 / rewards.length;
+    const segmentIndex = Math.floor(finalRotation / segmentAngle);
+    const finalReward = rewards[segmentIndex];
+    console.log(cycles, fullRotation, stopRotation);
+    // Set the final reward and update the state
+    setSelectedReward(finalReward);
+    setWheelRotation(finalRotation);
     setIsSpinning(false);
     setHasWon(true);
-    toast.success(`🎄 Congrats you won ${reward.label}`);
+    toast.success(`🎉 Congrats! You won ${finalReward.label}`);
   }, [
     isSpinning,
     controls,
@@ -76,7 +80,7 @@ export default function SpinWheel({
     setWheelRotation,
     setHasWon,
   ]);
-
+  console.log(wheelRotation, isSpinning);
   return (
     <motion.div
       className="relative"
@@ -84,7 +88,6 @@ export default function SpinWheel({
       animate={{ x: 0, opacity: 1 }}
     >
       <div className="relative w-80 h-80 mx-auto">
-        {/* Wheel with Conic Gradient Background */}
         <motion.div
           className="w-full h-full rounded-full relative shadow-xl"
           style={{
@@ -126,12 +129,10 @@ export default function SpinWheel({
           ))}
         </motion.div>
 
-        {/* Pointer */}
         <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-4">
           <div className="w-4 h-8 bg-yellow-400 rounded-b-lg" />
         </div>
 
-        {/* Spin Button */}
         <button
           onClick={spinWheel}
           disabled={isSpinning}

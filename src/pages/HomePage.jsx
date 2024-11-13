@@ -6,6 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { ConnectButton } from "../components/ConnectButton";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import SpinWheel from "../components/SpinWheel";
+import TestSpin from "../components/TestSpin";
 import "@solana/wallet-adapter-react-ui/styles.css";
 
 const SnowflakeBackground = () => (
@@ -64,9 +65,7 @@ const TrumpMascot = ({ isSpinning, hasWon }) => (
 
 const HomePage = () => {
   const [stakedAmount, setStakedAmount] = useState(0);
-  const [selectedReward, setSelectedReward] = useState(null);
   const [isSpinning, setIsSpinning] = useState(false);
-  const [wheelRotation, setWheelRotation] = useState(0);
   const [userTier, setUserTier] = useState("standard");
   const [hasWon, setHasWon] = useState(false);
   const { connection } = useConnection();
@@ -105,7 +104,7 @@ const HomePage = () => {
 
       {/* Christmas Decorations */}
       <div className="absolute top-0 left-0 w-full h-16 bg-[url('/api/placeholder/1920/64')] opacity-50" />
-
+      {/* <TestSpin /> */}
       <div className="max-w-4xl mx-auto relative">
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
@@ -185,12 +184,8 @@ const HomePage = () => {
 
               <SpinWheel
                 setHasWon={setHasWon}
-                selectedReward={selectedReward}
-                setSelectedReward={setSelectedReward}
                 isSpinning={isSpinning}
                 setIsSpinning={setIsSpinning}
-                wheelRotation={wheelRotation}
-                setWheelRotation={setWheelRotation}
               />
             </div>
           </div>

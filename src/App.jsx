@@ -11,7 +11,7 @@ import { useMemo } from "react";
 import HomePage from "./pages/HomePage";
 
 const SpinWinApp = () => {
-  const endpoint = clusterApiUrl("devnet");
+  const endpoint = clusterApiUrl("mainnet-beta");
   const wallets = useMemo(() => [], []);
   return (
     <ConnectionProvider endpoint={endpoint}>
